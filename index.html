@@ -2005,7 +2005,7 @@ const SAVE_KEY='sasatsu_progress_v1';
 const prog=()=>{try{return JSON.parse(localStorage.getItem(SAVE_KEY))||{}}catch(e){return {}}};
 const progSet=o=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(o))}catch(e){}};
 const RANKV={S:4,A:3,B:2,C:1};
-const APP_VER='1.1.0';
+const APP_VER='1.1.0 職場版';
 try{if(localStorage.getItem('sasatsu_big')==='1')document.body.classList.add('big')}catch(e){}
 const $=s=>document.querySelector(s), stage=$('#stage');
 function clearT(){TM.forEach(t=>{clearTimeout(t);clearInterval(t)});TM=[];if(typing){clearInterval(typing);typing=null}}
@@ -2325,13 +2325,12 @@ const LEGAL=`<h2>この教材について</h2><div class="legal">
  <p><b>教育用の架空シナリオです。</b>登場する建物・人物・事業者はすべて架空で、実在のものとは関係ありません。</p>
  <p><b>法令の基準</b>：消防法・同施行令・同施行規則と、東京都火災予防条例・東京消防庁の運用を基準に作成しています（作成時点の内容）。法令は改正されることがあり、市町村の条例や各消防本部の運用によって扱いが異なる場合があります。実務では必ず最新の法令と所属本部の基準を確認してください。</p>
  <p>本作は学習の補助を目的としたもので、法的な判断の根拠として使うことはできません。</p>
- <p>提供：<a href="https://shobo-shounin.com/" target="_blank" rel="noopener" style="color:var(--weak)">消防昇任試験ラボ</a>　バージョン ${APP_VER}</p></div>`;
+ <p>バージョン ${APP_VER}</p></div>`;
 function toTitle(){reset();STORY=CASES.c1.story;render()}
 $('#menuBtn').onclick=()=>{SND.tap();const inCase=G.mode==='drill'||(STORY[G.i]&&STORY[G.i].t!=='title');
   const ov=sheet(`<h2>メニュー</h2><div class="mlist">
    ${inCase?'<button class="btn seal" id="mTitle" type="button">タイトルへ戻る（中断）</button>':''}
    <button class="btn ghost" id="mBig" type="button">${document.body.classList.contains('big')?'文字の大きさを標準に戻す':'文字を大きくする'}</button>
-   <a class="btn weak" href="https://shobo-shounin.com/category/yobou/" target="_blank" rel="noopener" style="text-align:center;text-decoration:none">予防の解説記事を読む（消防昇任試験ラボ）</a>
    <button class="btn ghost" id="mLegal" type="button">この教材について</button>
    <button class="btn ghost" id="mReset" type="button">クリア記録を消す</button></div>`,[['閉じる']]);
   const q=x=>ov.querySelector(x);
