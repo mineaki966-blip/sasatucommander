@@ -131,6 +131,8 @@ h2{font-family:var(--f-disp);font-size:20px;margin:0;line-height:1.3;text-wrap:b
 .t2dots i{width:7px;height:7px;border-radius:50%;background:var(--line);transition:all .2s}
 .t2dots i.on{width:20px;border-radius:4px;background:var(--weak)}
 .t2foot{display:flex;gap:10px;flex:0 0 auto;padding-bottom:4px}
+body:not(.hard) .pick span{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.modesw{display:flex;align-items:center;gap:6px;flex-wrap:wrap;font-size:12.5px;color:var(--muted);flex:0 0 auto}.modesw button{border:1.5px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:4px 14px;font:inherit;font-size:13px;font-weight:700;cursor:pointer}.modesw button.on{background:var(--weak);border-color:var(--weak);color:#1a1a1a}.modesw small{flex-basis:100%;font-size:11.5px}
 @media(max-width:400px){#menuBtn .t{display:none}}
 #menuBtn{font-size:20px;background:none;border:0;color:inherit;font:inherit;padding:0;cursor:pointer}
 .t3card{position:relative}.t3card .clr{position:absolute;top:8px;right:8px;font-family:var(--f-code);font-size:11px;font-weight:700;padding:2px 8px;border-radius:999px;background:var(--weak);color:#1a1a1a;letter-spacing:.06em}
@@ -295,6 +297,16 @@ body.big .who small{font-size:13.5px}
 .senpai .f{width:22px;height:22px;border-radius:50%;background:#55657F;display:grid;place-items:center;font-family:var(--f-disp);font-size:11px;overflow:hidden}
 .senpai[disabled]{opacity:.4}
 .senpai[hidden]{display:none!important}
+.coach{position:fixed;inset:0;z-index:120;pointer-events:none}
+.coach .blk{position:fixed;pointer-events:auto;background:transparent}
+.coach .ring{position:fixed;border:3px solid var(--weak);border-radius:12px;box-shadow:0 0 0 9999px rgba(5,8,14,.68),0 0 18px rgba(255,210,63,.9);animation:cring 1.1s ease-in-out infinite}
+.coach .catch{position:fixed;pointer-events:auto}
+@keyframes cring{50%{box-shadow:0 0 0 9999px rgba(5,8,14,.68),0 0 32px rgba(255,210,63,1)}}
+.coach .fing{position:fixed;font-size:40px;line-height:1;filter:drop-shadow(0 2px 4px #000);animation:cfing .8s ease-in-out infinite;transform-origin:top left}
+@keyframes cfing{50%{transform:translateY(-10px)}}
+.coach .bub{position:fixed;max-width:min(330px,calc(100vw - 24px));background:#FFF8E0;color:#1B2230;border-radius:12px;padding:10px 13px;font-size:14.5px;font-weight:700;line-height:1.55;box-shadow:0 6px 20px rgba(0,0,0,.5)}
+.coach .bub small{display:block;margin-top:4px;font-size:11.5px;color:#8a6d00;font-weight:900}
+.coach .cskip{pointer-events:auto;float:right;margin:4px -4px -4px 8px;background:none;color:#8a7a50;border:1px solid #d8c88f;border-radius:14px;padding:2px 9px;font-size:11px;font-family:inherit}
 .ov{position:fixed;inset:0;background:rgba(5,8,14,.7);display:flex;align-items:flex-end;justify-content:center;z-index:90;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px))}
 .sheet{background:var(--panel);border:1.5px solid var(--line);border-radius:14px;max-width:528px;width:100%;max-height:82vh;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:10px;animation:up .25s ease}
 @keyframes up{from{transform:translateY(30px);opacity:0}}
@@ -317,6 +329,7 @@ body.big .who small{font-size:13.5px}
   <div class="bar">
     <button class="ttl" id="menuBtn" type="button" aria-label="メニュー">☰<span class="t"> 査察コマンダー</span></button>
     <span class="pill hearts" id="hearts" aria-label="信頼"></span>
+    <button class="pill" id="ledgerBtn" type="button">台帳</button>
     <button class="pill" id="caseBtn" type="button">カード <b id="cardN">0</b></button>
     <button class="pill" id="sndBtn" type="button">音 ON</button>
   </div>
@@ -1943,7 +1956,82 @@ const STORY12=[
  {t:'say',w:'you',loc:'予防課 事務室',x:'ああ。同じ階段に、何度でも行こう。'},
  {t:'result',label:'FINAL',laws:[['避難施設・防火戸の管理は続けて守る','法第8条の2の4'],['物件の整理・除去などの命令','法第5条の3'],['命令をしたら標識などで公示','法第5条の3第5項・第5条第3項'],['危険が差し迫れば警告を経ずに直ちに命令（基本は指導→警告→命令）','消防庁 違反処理標準マニュアル'],['改善されない違反対象物の公表','東京消防庁 公表制度（平成23年〜）']]}
 ];
+/* ================= TUTORIAL：はじめての査察 ================= */
+Object.assign(CARDS,{
+ t_daicho:{n:'練習用の台帳',k:'台帳',d:'練習用の建物「みどり屋ビル」。(16)項イ（1階が雑貨店、2階が事務所）。屋内階段は1本。'},
+ t_box:{n:'階段の段ボール',k:'現地',d:'階段の踊り場に段ボールとケースが積まれ、人がやっと通れる幅しか残っていない。'},
+ t_maishu:{n:'証言：毎週ここに置く',k:'証言',d:'店長役（早瀬）いわく「入荷日は毎週、いったん踊り場に置いているんです」。'}
+});
+Object.assign(SCENES,{
+ t_land:{name:'階段の踊り場',img:'img/ex_landing.webp',spots:[
+   {id:'t_bL',x:530,y:270,w:180,h:480,card:'t_box',msg:'踊り場に段ボールとケース。逃げるときに通る階段だ。'},
+   {id:'t_bR',x:785,y:145,w:290,h:640,card:'t_box',msg:'反対側にも積まれている。人がすれ違えない。'},
+   {id:'t_win',x:580,y:20,w:160,h:240,msg:'踊り場の窓。ここは問題なし。こういう「問題なし」の場所も混ざっている。'}]}
+});
+Object.assign(CROSS,{
+ x0:{who:'hay',title:'練習：店長役の早瀬',bg:'img/bg_office.webp',
+  lines:[
+   {t:'階段は、いつもきれいにしていますよ！',ans:['t_box'],
+    press:[['you','本当に、何も置いていませんか？'],['hay','ええ、もちろん！（……たぶん）'],['mun','この言い分と食い違う「現地の事実」を持っているはずだ。']],
+    hint:'現地確認で手に入れたカードを思い出せ。',
+    fb:'現地では踊り場に段ボールが積まれていた。こうやって、証言と食い違う証拠をつきつける。'},
+   {t:'置いたのは、今日だけですから。',ans:['t_maishu'],
+    press:[['you','今日だけですか？ ふだんはどうしていますか？'],['hay','……正直に言うと、入荷日は毎週、いったん踊り場に置いてます。'],['mun','聞いたな。今の発言がカードになった。それをこの証言につきつけてみろ。']],pressGet:['t_maishu'],
+    hint:'まず「追及する」で話を引き出してみろ。',
+    fb:'「今日だけ」ではなく「毎週」だった。追及で引き出した証言も、立派な根拠になる。'}
+  ]}
+});
+Object.assign(DEBATES,{
+ d0:{who:'hay',title:'練習：ノンストップ議論',time:240,bg:'img/bg_office.webp',
+  lines:[
+   {t:'少しの間だから、[すぐどかせば]問題ないですよね？',ans:['t_maishu','t_box'],
+    hint:'「少しの間」は本当か？ 追及で何が分かった？',
+    fb:'毎週置いているなら「少しの間」ではない。黄色い言葉に、食い違うカードを撃ち込む。これが議論の基本だ。'},
+   {t:'[消火器はちゃんと置いてある]んですから！',decoy:1},
+   {t:'階段は[広いから]、多少置いても平気です。',ans:['c_law824','t_box'],
+    hint:'階段に物を置いてよいかを決めている「条文」のカードは？',
+    fb:'階段は避難に使う場所。物を置かないよう管理する義務がある。条文カードも撃ち込める。'}
+  ]}
+});
+const RUSH0=[
+ {x:'踊り場の段ボールとケース',v:1},
+ {x:'毎週、入荷日に階段に荷物を置く運用',v:1},
+ {x:'問題のない踊り場の窓',v:0},
+ {x:'決められた場所にある消火器',v:0}
+];
+const STORY0=[
+ {t:'title'},
+ {t:'chap',i:0,s:'はじめての査察',m:'チュートリアル'},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'今日は本番の前に、査察の流れを練習する。早瀬が店長役をやる。気楽にいけ。'},
+ {t:'say',w:'hay',e:'smug',loc:'予防課 事務室',x:'店長役、がんばります！ 手加減しませんよ！'},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'査察は「台帳を読む→現地を見る→関係者の話を聞く→根拠で是正する→結果を通知する」の順だ。根拠になるのが、これから集める「カード」だ。'},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'まずは台帳だ。黄色い項目をタップすると、カードになる。上の「台帳」ボタンで、あとからいつでも見直せるぞ。'},
+ {t:'daicho',coach:[{sel:'td button[data-c="t_daicho"]',x:'黄色い項目をタップすると、カードになる。'},{sel:'#caseBtn',info:1,x:'カードが1枚増えた。中身はこのボタンでいつでも見られる。'},{sel:'#ledgerBtn',info:1,x:'台帳は、このボタンであとからいつでも見直せる。'},{sel:'#nx',x:'台帳を閉じて先へ進もう。'}],name:'みどり屋ビル（練習用）',need:['t_daicho'],rows:[['名称','みどり屋ビル（練習用）'],['用途','(16)項イ（1階 雑貨店・2階 事務所）','t_daicho'],['階段','屋内階段1本']]},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'次は条文のカードを渡す。上の「カード」ボタンで、手持ちのカードの中身をいつでも確認できる。'},
+ {t:'get',ids:['c_law824'],x:'先輩の条文メモ',coach:[{sel:'.evcard',info:1,x:'条文のカードを手に入れた。根拠として「つきつける」「撃ち込む」ときに使う。'}]},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'ときどき確認問題が出る。迷ったら、右上の「先輩に聞く」を押せ。回数に限りがあるから、ここぞというときに使え。'},
+ {t:'choice',coach:[{sel:'#senpaiBtn',info:1,x:'迷ったら「先輩に聞く」。ヒントがもらえる（回数に限りあり）。'},{sel:'.opts',info:1,x:'では、自分で考えて答えを選んでみよう。'}],q:'避難に使う廊下や階段に、物を置いてもいい？',
+  hint:'火事のとき、そこを通って逃げるのは誰だ？',
+  o:[{l:'通れる幅があれば置いてもいい',ok:0,fb:'避難の支障になる物は置かないよう管理する決まりがある。'},
+     {l:'避難の支障になる物は置かないよう管理する',ok:1,fb:'正解。さっき渡した「廊下・階段・防火戸の管理」のカードの内容だ。'},
+     {l:'夜だけなら置いてもいい',ok:0,fb:'火事は時間を選ばない。'}]},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'次は現地確認だ。写真の気になる場所をタップして調べろ。違反を見つけるとカードになる。違反の数は画面の下に出る。'},
+ {t:'explore',sc:['t_land'],coach:[{sel:'.hs[data-id="t_bL"]',x:'気になる場所をタップして調べよう。まずはここ。'},{sel:'.prog',info:1,x:'違反を見つけるとカードになり、ここの数が増える。'},{sel:'.hs[data-id="t_win"]',x:'窓も調べてみよう。'},{sel:'#fbx',info:1,x:'「問題なし」の場所も混ざっている。何でも違反にしないこと。'},{sel:'.hs[data-id="t_bR"]',x:'反対側にも何かありそうだ。'},{sel:'#nx',x:'違反を全部見つけた。関係者の話を聞きに行こう。'}]},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'次は証言追及だ。早瀬の証言を◀▶で切り替えられる。'},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'怪しい証言には「追及する」で揺さぶれ。新しい話が出て、カードが増えることがある。矛盾を見つけたら「つきつける」で、食い違うカードを出せ。'},
+ {t:'cross',id:'x0',coach:[{sel:'.testi .line',info:1,x:'これが店長役の証言。'},{sel:'#ts',x:'「いつもきれい」は、現地で見た事実と食い違う。「つきつける」を押そう。'},{sel:'.pick[data-c="t_box"]',x:'現地で見つけた「階段の段ボール」のカードを選ぶ。'},{sel:'#nv',x:'1つ是正できた。▶で次の証言へ。'},{sel:'#pr',x:'「今日だけ」は本当か？ まず「追及する」で揺さぶろう。'},{sel:'#ts',x:'追及で引き出した話がカードになった。「つきつける」を押そう。'},{sel:'.pick[data-c="t_maishu"]',x:'「証言：毎週ここに置く」を選ぶ。'}]},
+ {t:'say',w:'hay',e:'down',loc:'予防課 事務室',x:'うっ……毎週置いてるの、バレました。'},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'次はノンストップ議論だ。相手の発言が流れていく。下の手札からカードを選んで装填し、発言の中の「黄色い言葉」をタップして撃ち込め。'},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'時間制限があるが、今日は長めにしてある。それと、黄色い言葉の中には「事実」もある。そこを撃つと減点だ。見極めろ。'},
+ {t:'debate',id:'d0',coach:[{sel:'#tb',info:1,hold:1,x:'このバーが残り時間。案内の間は止まっている。'},{sel:'.stmtwrap',info:1,hold:1,x:'相手の発言がここに流れてくる。黄色い言葉が狙う場所だ。'},{sel:'.cd[data-c="t_maishu"]',hold:1,x:'まず手札から「証言：毎週ここに置く」をタップして装填。'},{sel:'.wk',hold:1,x:'「すぐどかせば」と言うが、毎週置いている。黄色い言葉をタップして撃ち込め！'},{sel:'#sk',hold:1,x:'「次の発言 ≫」で、発言を先に進められる。'},{sel:'.wk',info:1,hold:1,x:'「消火器はちゃんと置いてある」は事実。こういう言葉は撃たない（撃つと減点）。'},{sel:'#sk',hold:1,x:'撃たずに次の発言へ。'},{sel:'.cd[data-c="c_law824"]',hold:1,x:'今度は、さっきもらった条文のカードを装填。'},{sel:'.wk',hold:1,x:'「広いから平気」に撃ち込め！'}]},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'最後は指摘ラッシュだ。流れてくる項目が違反なら「指摘する」、違反でなければ「問題なし」を押せ。違反でないものを違反にしないのも、大事な力だ。'},
+ {t:'rush',coach:[{sel:'#rc',info:1,hold:1,x:'項目が1つずつ出てくる。1問5秒（案内の間は止まっている）。'},{sel:'#b1',info:1,hold:1,x:'違反なら「指摘する」。'},{sel:'#b0',info:1,hold:1,x:'違反でなければ「問題なし」。ではスタート！'}],items:RUSH0,hint:'違反は2つ。窓と消火器は問題ない。'},
+ {t:'say',w:'mun',loc:'予防課 事務室',x:'これで一通りだ。迷ったら「先輩に聞く」、建物を確かめたいときは「台帳」、カードの中身は「カード」。慣れてきたら、タイトル画面でハードモードにも挑戦してみろ。'},
+ {t:'say',w:'hay',loc:'予防課 事務室',x:'次は本物の現場ですね！ CASE 01 から行きましょう！'},
+ {t:'result',label:'TUTORIAL',laws:[['廊下・階段に避難の支障になる物を置かない','法第8条の2の4']]}
+];
 const CASES={
+ c0:{no:'TUTORIAL',name:'はじめての査察',sub:'遊び方の練習（約5分）',thumb:'img/bg_office.webp',story:STORY0},
  c1:{no:'CASE 01',name:'雑居ビル3階の居酒屋',sub:'(16)項イ・特定一階段等防火対象物',thumb:'img/bg_izakaya.webp',story:STORY1},
  c2:{no:'CASE 02',name:'グループホーム ひだまりの家',sub:'(6)項ロ・認知症高齢者グループホーム',thumb:'img/bg_gh_ext.webp',story:STORY2},
  c3:{no:'CASE 03',name:'ディスカウントストア フジミ',sub:'(4)項・物品販売店舗',thumb:'img/bg_ds_ext.webp',story:STORY3},
@@ -2001,18 +2089,30 @@ const SCENE_BGM={title:'title',narr:'daily',say:'daily',get:'daily',daicho:'dail
 let G,TM=[],typing=null;
 function reset(){G={mode:'story',i:0,hearts:5,cards:new Set(),tix:3,hints:0,miss:0,combo:0,maxCombo:0,chap:'',ex:{},db:null,cx:null,rush:null}}
 reset();
+
+/* ===== 難易度：ふつう／ハード ===== */
+const LAWNAME={"c_law822": ["防火対象物点検の対象（特定一階段等）", "法第8条の2の2"], "c_law824": ["廊下・階段・防火戸の管理", "法第8条の2の4"], "c_law17": ["消防用設備等の設置・維持", "法第17条第1項"], "g_law12": ["グループホームのスプリンクラー", "令第12条第1項第1号"], "g_law25": ["通報装置と自火報の連動", "規則第25条第3項第5号"], "g_law83": ["防炎物品の使用義務", "法第8条の3"], "g_law310": ["消火・避難訓練は年2回以上", "規則第3条第10項"], "d_law10": ["消火器は持ち出しやすい場所に", "令第10条第2項第2号"], "d_law9": ["消火器の高さと標識", "規則第9条"], "h_law822": ["防火対象物点検の対象（300人以上）", "法第8条の2の2"], "m_law3": ["防火管理者の資格", "令第3条"], "m_law3y": ["点検報告の期間（特定1年・非特定3年）", "規則第31条の6第3項"], "m_law822": ["防火対象物点検は特定用途だけ", "法第8条の2の2"], "m_bouen": ["防炎規制の対象", "法第8条の3"], "k_law21": ["カラオケ店は全部に自火報", "令第21条"], "k_law24": ["警報を聞き取れるようにする措置", "規則第24条"], "z_law21": ["工場の自火報（500㎡）", "令第21条"], "z_law11": ["屋内消火栓の基準（700㎡）", "令第11条"], "z_law6": ["消火器まで歩いて20m以内", "規則第6条第6項"], "z_law1": ["防火管理者が必要な規模", "令第1条の2第3項・第3条"], "z_kizon": ["既存建物の特例", "法第17条の2の5・令第34条の2"], "r_law10": ["飲食店は面積に関係なく消火器", "令第10条"], "r_law34": ["消火器は今の基準に合わせる", "令第34条"], "r_law9": ["火災予防条例の根拠", "法第9条"], "r_jo3": ["厨房の周りに燃える物を置かない", "東京都火災予防条例第3条"], "r_jo32": ["フードとダクトの清掃", "東京都火災予防条例第3条の2"], "r_law1": ["防火管理者が必要な規模", "令第1条の2第3項"], "r_law21": ["飲食店の自火報（300㎡）", "令第21条"], "b_law82": ["統括防火管理者", "法第8条の2"], "b_taisho": ["統括防火管理の対象", "法第8条の2・令第3条の3"], "b_keikaku": ["テナントの計画は全体に合わせる", "法第8条の2"], "b_law2": ["「関係者」にはテナントも含む", "法第2条第4項"], "q_law48": ["客席の通路の幅", "東京都火災予防条例第48条"], "q_teiinjo": ["劇場の定員を守る", "火災予防条例（劇場等の定員）"], "q_law23": ["舞台での裸火の禁止", "東京都火災予防条例第23条"], "q_law822": ["防火対象物点検（300人以上）", "法第8条の2の2"], "q_law43": ["舞台の幕は防炎物品", "法第8条の3・令第4条の3"], "n_law21": ["保育所の設備の基準", "令第21条・第23条"], "n_law25": ["避難器具の基準", "令第25条"], "f_keikoku": ["違反処理の進め方", "違反処理標準マニュアル"], "f_law53": ["物件の除去を命じる", "法第5条の3"], "f_koji": ["命令の公示（標識）", "法第5条の3第5項"], "f_kohyo": ["違反対象物の公表", "東京消防庁 公表制度"]};
+let MODE='normal';try{MODE=localStorage.getItem('sasatsu_mode')==='hard'?'hard':'normal'}catch(e){}
+function applyMode(){Object.entries(LAWNAME).forEach(([k,[e,h]])=>{if(CARDS[k])CARDS[k].n=MODE==='hard'?h:e});document.body.classList.toggle('hard',MODE==='hard')}
+function setMode(m){MODE=m;try{localStorage.setItem('sasatsu_mode',m)}catch(e){}applyMode()}
+/* ふつうモード：つきつける候補を絞る（正解＋はずれで最大4枚） */
+function pickSet(answers,pool,n,seed,maxAns=2){const has=answers.filter(k=>pool.includes(k));const ans=has.slice(0,maxAns);
+  let r=seed*9301+49297;const rnd=()=>(r=(r*9301+49297)%233280)/233280;
+  const rest=pool.filter(k=>!has.includes(k)).sort(()=>rnd()-.5).slice(0,Math.max(0,n-ans.length));
+  return [...ans,...rest].sort(()=>rnd()-.5)}
 const SAVE_KEY='sasatsu_progress_v1';
 const prog=()=>{try{return JSON.parse(localStorage.getItem(SAVE_KEY))||{}}catch(e){return {}}};
 const progSet=o=>{try{localStorage.setItem(SAVE_KEY,JSON.stringify(o))}catch(e){}};
 const RANKV={S:4,A:3,B:2,C:1};
-const APP_VER='1.1.0 職場版';
+const APP_VER='1.3.0 職場版';
 try{if(localStorage.getItem('sasatsu_big')==='1')document.body.classList.add('big')}catch(e){}
+applyMode();
 const $=s=>document.querySelector(s), stage=$('#stage');
 function clearT(){TM.forEach(t=>{clearTimeout(t);clearInterval(t)});TM=[];if(typing){clearInterval(typing);typing=null}}
 function later(f,ms){const t=setTimeout(f,ms);TM.push(t);return t}
 function hud(){
   $('#hearts').innerHTML=[0,1,2,3,4].map(k=>`<i class="${k<G.hearts?'':'off'}"></i>`).join('');
-  $('#cardN').textContent=G.cards.size;$('#tix').textContent=G.tix;
+  $('#cardN').textContent=G.cards.size;{const tt=G.mode==='drill'?'title':STORY[G.i]&&STORY[G.i].t;$('#ledgerBtn').style.display=tt==='title'?'none':''}$('#tix').textContent=G.tix;
   $('#senpaiBtn').disabled=G.tix<=0;$('#chap').textContent=G.chap;
   const t=G.mode==='drill'?'title':STORY[G.i]&&STORY[G.i].t;$('#senpaiBtn').style.visibility=['title','chap','result','get','say','narr'].includes(t)?'hidden':'visible';
 }
@@ -2039,7 +2139,7 @@ const isAns=(L,k)=>Array.isArray(L.ans)?L.ans.includes(k):L.ans===k;
 const ans1=L=>Array.isArray(L.ans)?L.ans[0]:L.ans;
 /* 誤答の理由を返す（学習用のフィードバック） */
 function wrongWhy(L,k,lines,kind){
-  L._miss=(L._miss||0)+1;
+  L._miss=(L._miss||0)+(MODE==='hard'?0:1);
   const n='「'+CARDS[k].n+'」';
   if(lines.some(l=>l!==L&&isAns(l,k)))return n+'は、別の'+kind+'を崩す根拠だ。この'+kind+'が何を言っているか、もう一度読め。';
   if(L.pressGet&&L.pressGet.some(c=>!G.cards.has(c)))return n+'では崩せない。まず「追及」して、相手の話を引き出してみろ。';
@@ -2066,6 +2166,7 @@ function talk(w,text,loc,after,e){
 function render(){
   clearT();document.querySelectorAll('.ov,.bullet').forEach(e=>e.remove());
   const s=STORY[G.i];stage.className='stage';stage.scrollTop=0;hud();
+  coachEnd();if(s.coach&&G.caseId==='c0'){const gi=G.i;setTimeout(()=>{if(G.i===gi&&STORY===CASES.c0.story)coachRun(s.coach)},350)}
   if(SCENE_BGM[s.t])BGM.play(SCENE_BGM[s.t]);
   if(s.t==='title')return title();
   if(G.zero===1&&G.mode!=='drill'){G.zero=2;setTimeout(()=>sheet(whoHTML('mun','信頼がゼロになった。関係者はもう、こちらの話を半分しか聞いていないぞ。このまま最後まで続けてもいいが、評価はCになる。最初からやり直すか？','n'),[['このまま続ける'],['最初からやり直す',()=>{const c=G.caseId;reset();startCase(c)},'seal']]),400)}
@@ -2085,18 +2186,63 @@ function render(){
   if(s.t==='rush')return rush();
   if(s.t==='result')return result();
 }
-function startCase(id){[...Object.values(CROSS),...Object.values(DEBATES)].forEach(X=>X.lines.forEach(l=>delete l._miss));G.caseId=id;STORY=CASES[id].story;G.i=1;render()}
+
+/* ===== コーチマーク（チュートリアルの「ここを押して」） ===== */
+let CO=null;
+function coachEnd(){if(!CO)return;cancelAnimationFrame(CO.raf);document.removeEventListener('click',CO.cap,true);CO.root.remove();G.hold=false;CO=null}
+function coachRun(list){coachEnd();if(G.noCoach||!list||!list.length)return;
+  const root=document.createElement('div');root.className='coach';
+  root.innerHTML='<div class="blk"></div><div class="blk"></div><div class="blk"></div><div class="blk"></div><div class="catch"></div><div class="ring"></div><div class="fing">👆</div><div class="bub"></div>';
+  document.body.appendChild(root);
+  const q=x=>root.querySelector(x),blk=[...root.querySelectorAll('.blk')],ring=q('.ring'),fing=q('.fing'),bub=q('.bub'),cat=q('.catch');
+  CO={root,list,k:0,el:null,on:false,raf:0,cap:null,lock:false};
+  bub.onclick=e=>{if(e.target.closest('.cskip')){e.stopPropagation();G.noCoach=1;coachEnd();toast('案内を閉じました')}};
+  const cur=()=>CO.list[CO.k];
+  const step=()=>{CO.k++;CO.el=null;CO.lock=false;if(CO.k>=CO.list.length)coachEnd()};
+  const advance=()=>{if(CO.lock)return;CO.lock=true;setTimeout(()=>{if(CO)step()},80)};
+  CO.cap=e=>{if(!CO||!CO.on||e.target.closest('.cskip'))return;const it=cur();if(!it)return;
+    if(it.info){e.stopPropagation();e.preventDefault();SND.tap();advance();return}
+    if(CO.el&&CO.el.contains(e.target))advance()};
+  document.addEventListener('click',CO.cap,true);
+  cat.onclick=()=>{};
+  const hide=()=>{if(CO.on){CO.on=false;root.style.display='none';G.hold=false}};
+  const tick=()=>{if(!CO)return;CO.raf=requestAnimationFrame(tick);const it=cur();if(!it)return;
+    let el=CO.el&&CO.el.isConnected?CO.el:document.querySelector(it.sel);CO.el=el;
+    if(!el||document.querySelector('.cutin,.stamp,.bullet')){hide();return}
+    let r=el.getBoundingClientRect();
+    if(r.width<1||r.height<1){hide();return}
+    if(r.bottom<0||r.top>innerHeight||r.left<0||r.right>innerWidth){el.scrollIntoView({block:'nearest',inline:'center'});if(r.bottom<0||r.top>innerHeight)el.scrollIntoView({block:'center',inline:'center'});r=el.getBoundingClientRect()}
+    const cx=Math.min(innerWidth-2,Math.max(1,r.left+r.width/2)),cy=Math.min(innerHeight-2,Math.max(1,r.top+r.height/2));
+    root.style.display='none';const top=document.elementFromPoint(cx,cy);
+    if(!top||!(el===top||el.contains(top)||top.contains(el)&&top.tagName!=='BODY'&&!top.classList.contains('ov'))){CO.on=false;G.hold=false;return}
+    root.style.display='';CO.on=true;if(it.hold)G.hold=true;
+    const pd=6,L=Math.max(0,r.left-pd),T=Math.max(0,r.top-pd),R=Math.min(innerWidth,r.right+pd),B=Math.min(innerHeight,r.bottom+pd);
+    const W=innerWidth,H=innerHeight;
+    [[0,0,W,T],[0,B,W,H-B],[0,T,L,B-T],[R,T,W-R,B-T]].forEach((v,i)=>Object.assign(blk[i].style,{left:v[0]+'px',top:v[1]+'px',width:Math.max(0,v[2])+'px',height:Math.max(0,v[3])+'px'}));
+    Object.assign(ring.style,{left:L+'px',top:T+'px',width:(R-L)+'px',height:(B-T)+'px'});
+    if(it.info){Object.assign(cat.style,{display:'',left:'0',top:'0',width:W+'px',height:H+'px'})}else cat.style.display='none';
+    fing.style.display=it.info?'none':'';
+    Object.assign(fing.style,{left:(cx-8)+'px',top:(Math.min(B,H-60)-14)+'px'});
+    if(bub._x!==it.x){bub._x=it.x;bub.innerHTML=it.x+(it.info?'<small>▼ どこかをタップ</small>':'<small>👆 光っているところをタップ</small>')+'<button class="cskip" type="button">案内をスキップ</button>'}
+    const bh=bub.offsetHeight,bw=bub.offsetWidth,below=H-B>bh+70||T<bh+20;
+    bub.style.left=Math.max(12,Math.min(W-bw-12,cx-bw/2))+'px';
+    bub.style.top=(below?Math.min(H-bh-50,B+(it.info?12:44)):Math.max(8,T-bh-12))+'px';
+  };
+  root.style.display='none';CO.raf=requestAnimationFrame(tick);
+}
+function startCase(id){applyMode();G.tix=MODE==='hard'?1:3;G.mode2=MODE;[...Object.values(CROSS),...Object.values(DEBATES)].forEach(X=>X.lines.forEach(l=>delete l._miss));G.caseId=id;STORY=CASES[id].story;G.i=1;render()}
 function title(){
   G.chap='';hud();stage.className='stage fixed';
   const ids=Object.keys(CASES);
-  const P=prog(),nClr=ids.filter(i=>P[i]).length;
-  const card=id=>{const c=CASES[id],r=P[id];return `<button class="t3card" data-id="${id}" type="button" style="${c.thumb?`--bgi:url('${c.thumb}')`:''}">${r?`<span class="clr">CLEAR ${r.rank}</span>`:'<span class="clr no">未クリア</span>'}<span class="no">${c.no}</span><b>${c.name}</b><small>${c.sub}</small></button>`};
+  const P=prog(),cids=ids.filter(i=>i!=='c0'),nClr=cids.filter(i=>P[i]||P[i+'_h']).length;
+  const card=id=>{const c=CASES[id],r=P[id];return `<button class="t3card" data-id="${id}" type="button" style="${c.thumb?`--bgi:url('${c.thumb}')`:''}">${r||P[id+'_h']?`<span class="clr">${r?'CLEAR '+r.rank:''}${P[id+'_h']?(r?' ／ ':'')+'HARD '+P[id+'_h'].rank:''}</span>`:'<span class="clr no">未クリア</span>'}<span class="no">${c.no}</span><b>${c.name}</b><small>${c.sub}</small></button>`};
   const row=ids.map(card).join('');
   stage.innerHTML=`<div class="t3">
    <div class="t3hero">${TITLE_ART?`<img class="t3art" src="${TITLE_ART}" alt="">`:`<div class="t3cast"><img class="c1" src="img/you_n.webp" alt=""></div>`}
     <div class="t2logo"><span class="k">立入検査トレーニング</span><h1>査察<br>コマンダー</h1></div></div>
-   <div class="t3sel"><div class="t3lab">ケースを選んで出動（クリア ${nClr}/${ids.length}） <span>← スワイプ →</span></div>
+   <div class="t3sel"><div class="t3lab">ケースを選んで出動（クリア ${nClr}/${cids.length}） <span>← スワイプ →</span></div>
     <div class="t3mq" id="mq"><div class="t3track" id="trk">${row}${row}${row}</div></div></div>
+   <div class="modesw" role="group" aria-label="難易度"><span>難易度</span><button type="button" data-m="normal" class="${MODE==='normal'?'on':''}">ふつう</button><button type="button" data-m="hard" class="${MODE==='hard'?'on':''}">ハード</button><small>${MODE==='hard'?'条文番号で勝負・候補しぼりなし・先輩1回':'わかりやすい名前・候補を絞って表示'}</small></div>
    <div class="t2foot"><button class="btn weak" id="drillBtn" type="button">別表第一ドリル</button><button class="btn ghost" id="howBtn" type="button">遊び方</button></div>
   </div>`;
   const mq=$('#mq'),trk=$('#trk');
@@ -2113,13 +2259,17 @@ function title(){
   ['pointerup','pointercancel','touchend','pointerleave'].forEach(e=>mq.addEventListener(e,up,{passive:true}));
   mq.addEventListener('scroll',()=>{if(hold)wrap()},{passive:true});
   stage.querySelectorAll('.t3card').forEach(b=>b.onclick=()=>{SND.c();SND.chap();startCase(b.dataset.id)});
+  stage.querySelectorAll('.modesw button').forEach(b=>b.onclick=()=>{SND.tap();setMode(b.dataset.m);title()});
+  {let seen=false;try{seen=localStorage.getItem('sasatsu_tut_seen')==='1'}catch(e){}
+   if(!seen&&!P.c0&&!P.c0_h&&CASES.c0){try{localStorage.setItem('sasatsu_tut_seen','1')}catch(e){}
+    setTimeout(()=>(STORY[G.i]&&STORY[G.i].t==='title'&&G.mode!=='drill'&&!document.querySelector('.ov'))&&sheet('<h2>はじめての方へ</h2><p style="margin:0">5分ほどのチュートリアルで、台帳・現地確認・証言追及・ノンストップ議論・指摘ラッシュの遊び方を練習できます。</p>',[['チュートリアルを始める',()=>{SND.chap();startCase('c0')},'seal'],['あとで']]),500)}}
   $('#drillBtn').onclick=()=>{SND.c();SND.chap();drillStart()};
   $('#howBtn').onclick=()=>{SND.c();SND.tap();sheet(`<h2>遊び方</h2><div class="how">
    <div><b>調べる</b><span>台帳と現地で「根拠カード」を集める</span></div>
    <div><b>追及</b><span>関係者の証言を揺さぶって情報を引き出し、矛盾に根拠をつきつける</span></div>
    <div><b>議論</b><span>流れていく発言の<strong style="color:var(--weak)">黄色い言葉</strong>に、根拠カードを撃ち込んで是正する</span></div>
    <div><b>助言</b><span>行き詰まったら右上の「先輩に聞く」（3回まで）</span></div></div>
-   <p style="font-size:12px;color:var(--muted);margin:0">教育用の架空シナリオです。基準・用語は東京消防庁の運用に合わせています。BGMと効果音は右上で切り替えられます。途中でやめるときや、免責事項は左上の「☰」メニューから。</p>`,[['閉じる']])};
+   <button class="btn seal" id="howTut" type="button" style="width:100%;margin-bottom:10px">チュートリアルで練習する（約5分）</button><p style="font-size:12px;color:var(--muted);margin:0">教育用の架空シナリオです。基準・用語は東京消防庁の運用に合わせています。BGMと効果音は右上で切り替えられます。途中でやめるときや、免責事項は左上の「☰」メニューから。</p>`,[['閉じる']]);const ht=document.getElementById('howTut');if(ht)ht.onclick=()=>{document.querySelectorAll('.ov').forEach(e=>e.remove());SND.chap();startCase('c0')}};
 }
 function daicho(){
   const st=STORY[G.i],need=st.need;
@@ -2179,7 +2329,8 @@ function cross(id){
   $('#nv').onclick=()=>{SND.tap();st.li=(st.li+1)%X.lines.length;cross(id)};
   $('#pr').onclick=()=>{SND.shot();cutin('その証言、<br>追及！',()=>{st.mode='press';st.pi=0;cross(id)})};
   $('#ts').onclick=()=>{SND.tap();
-    const ov=sheet(`<h2>どの根拠をつきつける？</h2><div class="cardlist">${[...G.cards].map(k=>`<button class="it pick" data-c="${k}" type="button"><small>${CARDS[k].k}</small><b>${CARDS[k].n}</b><span style="font-size:13px;color:#C9D3E3">${CARDS[k].d}</span></button>`).join('')}</div>`,[['やめる',null,'ghost']]);
+    const pool=[...G.cards],cand=MODE==='hard'?pool:pickSet([].concat(L.ans||[]),pool,4,st.li*7+3);
+    const ov=sheet(`<h2>どの根拠をつきつける？</h2>${MODE==='hard'?'':'<p style="margin:0 0 6px;font-size:12.5px;color:var(--muted)">ふつうモード：候補を4枚にしぼっています</p>'}<div class="cardlist">${cand.map(k=>`<button class="it pick" data-c="${k}" type="button"><small>${CARDS[k].k}</small><b>${CARDS[k].n}</b><span style="font-size:13px;color:#C9D3E3">${CARDS[k].d}</span></button>`).join('')}</div>`,[['やめる',null,'ghost']]);
     ov.querySelectorAll('.pick').forEach(b=>b.onclick=()=>{ov.remove();present(b.dataset.c)})};
   function present(k){
     if(!solved&&isAns(L,k)){good();$('#cpor').innerHTML=face(c,'shock');cutin('その証言、<br>是正！',()=>{SND.hit();flash();stamp('是正！');st.solved.add(st.li);
@@ -2201,7 +2352,7 @@ function debate(id){
    <div class="stmtwrap"><div class="stmt" id="sm"></div></div>
    <div class="aprog"><span id="lc"></span><button class="skip" id="sk" type="button">次の発言 ≫</button></div></div>
   <div class="loaded" id="ld"></div>
-  <div class="tray" id="tr">${[...G.cards].map(k=>`<button class="cd" data-c="${k}" type="button"><small>${CARDS[k].k}</small>${CARDS[k].n}</button>`).join('')}</div>`;
+  <div class="tray" id="tr">${(MODE==='hard'?[...G.cards]:(st.tray||(st.tray=pickSet([...new Set(D.lines.flatMap(l=>[].concat(l.ans||[])))],[...G.cards],[...new Set(D.lines.flatMap(l=>[].concat(l.ans||[])))].filter(k=>G.cards.has(k)).length+2,7,99)))).map(k=>`<button class="cd" data-c="${k}" type="button"><small>${CARDS[k].k}</small>${CARDS[k].n}</button>`).join('')}</div>`;
   const tb=$('#tb'),sm=$('#sm'),base=D.who==='hay'?'smug':'n',hitF=D.who==='hay'?'down':'shock';
   const setFace=e=>{$('#spf').innerHTML=face(c,e);if(c.img.n)$('#bgp').innerHTML=face(c,e)};
   const setLoaded=()=>{$('#ld').innerHTML=loadedHTML(st.sel);
@@ -2215,12 +2366,12 @@ function debate(id){
     sm.innerHTML='「'+L.t.replace(/\[(.+?)\]/g,(m,x)=>`<button class="wk ${done?'done':''}" type="button">${x}</button>`)+'」';
     $('#lc').textContent=`発言 ${i+1}/${D.lines.length}`;SND.tone(420,.08,'triangle',.05);
     const wk=sm.querySelector('.wk');if(wk&&!done)wk.onclick=e=>fire(L,i,wk);
-    clearTimeout(lineT);lineT=later(()=>{if(!st.pause)show((i+1)%D.lines.length)},2600+L.t.length*75);
+    clearTimeout(lineT);const adv=()=>{if(G.hold){lineT=later(adv,400);return}if(!st.pause)show((st.li+1)%D.lines.length)};lineT=later(adv,2600+L.t.length*75);
   }
   $('#sk').onclick=()=>{if(st.pause)return;SND.tap();show((st.li+1)%D.lines.length)};
-  function pause(on){st.pause=on;if(!on){clearTimeout(lineT);const L=D.lines[st.li];lineT=later(()=>show((st.li+1)%D.lines.length),2600+L.t.length*75)}}
+  function pause(on){st.pause=on;if(!on){clearTimeout(lineT);const L=D.lines[st.li];const adv=()=>{if(G.hold){lineT=later(adv,400);return}if(!st.pause)show((st.li+1)%D.lines.length)};lineT=later(adv,2600+L.t.length*75)}}
   st.pauseFn=pause;st.showFn=show;
-  const tk=setInterval(()=>{if(st.pause)return;st.t-=.1;const r=Math.max(0,st.t/D.time);tb.firstChild.style.width=(r*100)+'%';tb.classList.toggle('low',st.t<20);
+  const tk=setInterval(()=>{if(st.pause||G.hold)return;st.t-=.1;const r=Math.max(0,st.t/D.time);tb.firstChild.style.width=(r*100)+'%';tb.classList.toggle('low',st.t<20);
     if(st.t<10&&Math.abs(st.t-Math.round(st.t))<.05)SND.tick();
     if(st.t<=0){pause(true);hurt();st.t=D.time*.6;
       sheet(whoHTML('mun','時間切れだ。焦るな。発言をよく聞いて、狙う言葉を決めてから撃て。'),[['もう一度',()=>pause(false)]])}},100);TM.push(tk);
@@ -2258,7 +2409,7 @@ function rush(){
   <div class="arena" style="--c:var(--seal)"><div class="rushcard" id="rc"><div class="eyebrow">この項目は？</div><div class="it">${it.x}</div><div id="rs"></div></div></div>
   <div class="rushbtns"><button class="btn seal" id="b1" type="button">指摘する</button><button class="btn ghost" id="b0" type="button">問題なし</button></div>`;
   SND.tone(520,.08,'square',.05);
-  const tk=setInterval(()=>{t-=.1;$('#tb').firstChild.style.width=Math.max(0,t/lim*100)+'%';if(t<=0&&!answered)ans(-1)},100);TM.push(tk);
+  const tk=setInterval(()=>{if(G.hold)return;t-=.1;$('#tb').firstChild.style.width=Math.max(0,t/lim*100)+'%';if(t<=0&&!answered)ans(-1)},100);TM.push(tk);
   function ans(v){if(answered)return;answered=true;clearInterval(tk);
     const ok=v===it.v;
     if(ok){R.ok++;good();SND.hit();flash();$('#rs').innerHTML=`<div class="res" style="color:${it.v?'var(--seal)':'var(--ok)'}">${it.v?'指摘！':'問題なし'}</div>`}
@@ -2273,9 +2424,9 @@ function result(){
   const r=G.hearts>=5&&G.hints<=1?'S':G.hearts>=4?'A':G.hearts>=2?'B':'C';
   const msg={S:'文句なし。次の査察は任せられる。',A:'十分だ。根拠の当て方も板についてきた。',B:'見落としはないが、迷いが多い。条文をもう一度確認しておけ。',C:'まずは条文と台帳の読み方からだ。もう一回、通しでやってみろ。'}[r];
   const laws=st.laws;
-  {const P=prog(),old=P[G.caseId];if(!old||RANKV[r]>RANKV[old.rank])P[G.caseId]={rank:r};P[G.caseId].n=((old&&old.n)||0)+1;progSet(P)}
+  {const pk=G.caseId+(MODE==='hard'?'_h':''),P=prog(),old=P[pk];if(!old||RANKV[r]>RANKV[old.rank])P[pk]={rank:r};P[pk].n=((old&&old.n)||0)+1;progSet(P)}
   const rs=STORY.find(x=>x.t==='rush'),items=rs?rs.items:[];
-  stage.innerHTML=`<div class="panel" style="display:flex;gap:18px;align-items:center"><div class="rank">${r}</div><div><div class="eyebrow">${st.label} クリア</div><div style="font-size:14px">信頼 ${G.hearts}/5・ミス ${G.miss}回<br>最大コンボ ${G.maxCombo}・先輩の助言 ${G.hints}回</div></div></div>
+  stage.innerHTML=`<div class="panel" style="display:flex;gap:18px;align-items:center"><div class="rank">${r}</div><div><div class="eyebrow">${st.label} クリア${MODE==='hard'?'（ハード）':''}</div><div style="font-size:14px">信頼 ${G.hearts}/5・ミス ${G.miss}回<br>最大コンボ ${G.maxCombo}・先輩の助言 ${G.hints}回</div></div></div>
   <div class="panel">${whoHTML('mun',msg)}</div>
   ${items.length?`<div class="panel"><div class="eyebrow">査察チェック表</div><div class="chk">${items.filter(i=>i.v).map(i=>`<div class="v"><i>違反</i><span>${i.x}</span></div>`).join('')}${items.filter(i=>!i.v).map(i=>`<div class="o"><i>問題なし</i><span>${i.x}</span></div>`).join('')}</div></div>`:''}
   <div class="panel"><div class="eyebrow">今回の根拠</div><div class="cardlist" style="margin-top:8px">${laws.map(l=>`<div class="it"><b>${l[0]}</b><span class="law">${l[1]}</span></div>`).join('')}</div></div>
@@ -2315,6 +2466,14 @@ $('#senpaiBtn').onclick=()=>{
   if(!h.free){G.tix--;G.hints++;hud()}
   SND.get();
   sheet(whoHTML('mun',h.x,'hint')+`<div style="font-size:12px;color:var(--muted)">${h.free?'（この助言は回数を使いません）':`助言の残り ${G.tix}回`}</div>`,[['わかりました',()=>{h.after&&h.after();if(st&&st.pauseFn)st.pauseFn(false)}]]);
+};
+$('#ledgerBtn').onclick=()=>{
+  const c=G.caseId&&CASES[G.caseId];const s=STORY[G.i];
+  if(!c||G.mode==='drill'||!s||s.t==='title'){toast('ケースを始めると、対象物の台帳を見られます');return}
+  const st=s.t==='debate'?G.db:null;if(st&&st.pauseFn)st.pauseFn(true);
+  const d=c.story.find(x=>x.t==='daicho');
+  const rows=d?d.rows.map(r=>`<tr><th style="text-align:left;padding:6px 8px;white-space:nowrap;color:var(--muted);font-weight:700;vertical-align:top">${r[0]}</th><td style="padding:6px 8px">${r[1]}</td></tr>`).join(''):'';
+  sheet(`<h2>台帳：${d?d.name:c.name}</h2><p style="margin:0 0 8px;font-size:13px;color:var(--muted)">${c.no}／${c.sub}</p><table class="daicho" style="width:100%">${rows}</table>`,[['閉じる',()=>{if(st&&st.pauseFn)st.pauseFn(false)}]]);
 };
 $('#caseBtn').onclick=()=>{
   const s=STORY[G.i],st=s&&s.t==='debate'?G.db:null;if(st&&st.pauseFn)st.pauseFn(true);
